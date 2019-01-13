@@ -92,7 +92,6 @@ def draw(scores, fst_range, scnd_range, fst_name, scnd_name):
     plt.title('Validation accuracy')
     plt.show()
 
-
 def main():
     file_data, file_classes = utils.load_data()
     data = Data(file_data, file_classes, 0.1,  0.7, 30)

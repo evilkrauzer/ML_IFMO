@@ -1,14 +1,27 @@
+import numpy as np
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 import utils
 from data import Data
 import sklearn.model_selection as cv
+import warnings
+warnings.filterwarnings("ignore")
 
 
 def main():
     file_data, file_classes = utils.load_data()
-    data = Data(file_data, file_classes, 1,  0.7, 9)
+    cut_file_data =[]
+    cut_file_classes = []
+    for i in range(len(file_data)):
+        if(file_classes[i] in [2, 6]):
+            cut_file_data.append(file_data[i])
+            cut_file_classes.append(file_classes[i])
+
+    cut_file_data = np.array(cut_file_data)
+    cut_file_classes = np.array(cut_file_classes)
+
+    data = Data(cut_file_data, cut_file_classes, 1,  0.7, 561)
     kFold = cv.KFold( n_splits=10, random_state=7, shuffle=True)
     lda = LDA()
     gnb = GaussianNB()
@@ -20,7 +33,7 @@ def main():
     calc_loss(data.data, data.classes, kFold, lda, gnb)
 
     print("Area Under ROC Curve Results: ")
-    #calc_curve(data.data, data.classes, kFold, lda, gnb)
+    calc_curve(data.data, data.classes, kFold, lda, gnb)
 
     print("Confusion Matrixes:")
     calc_matrix(data.train_data, data.test_data, data.train_classes, data.test_classes, lda, gnb)
@@ -40,8 +53,7 @@ def calc_accuracy(data, classes, kFold, lda, gnb):
 
 # Logarithmic Loss
 def calc_loss(data, classes, kFold, lda, gnb):
-    result = cv.cross_validate(lda, data, classes, cv=kFold, scoring='neg_log_loss',  return_train_score=False)
-    result = result['test_neg_log_loss']
+    result = cv.cross_val_score(lda, data, classes, cv=kFold, scoring='neg_log_loss')
     print(" LDA:")
     print(" - mean: %0.5f" % result.mean())
     print(" - standart deviation: %0.5f" % result.std())

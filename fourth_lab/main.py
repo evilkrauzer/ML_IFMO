@@ -23,7 +23,7 @@ class MidpointNormalize(Normalize):
 
 
 def test_kernel_functions(data):
-    C = 1.0
+    C = 50.0
     svc = svm.SVC(kernel='linear', C=C).fit(data.train_data, data.train_classes)
     lin_svc = svm.LinearSVC(C=C).fit(data.train_data, data.train_classes)
     rbf_svc = svm.SVC(kernel='rbf', C=C).fit(data.train_data, data.train_classes)
@@ -41,14 +41,13 @@ def test_kernel_functions(data):
         print('Accuracy for {}: {:.2%}'.format(titles[i], metrics.accuracy_score(data.test_classes, pred)))
 
 
-def poly_c_gamma_test(data):
+def linear_c_test(data):
     C_range = np.logspace(-2, 7, 10)
-    gamma_range = np.logspace(-9, 0, 10)
-    param_grid = dict(gamma=gamma_range, C=C_range)
+    param_grid = dict(C=C_range)
 
-    scores = get_svc_accuracy(param_grid, len(C_range), len(gamma_range), data)
+    scores = get_svc_accuracy(param_grid, len(C_range), 1, data)
 
-    draw(scores, gamma_range, C_range, 'gamma', 'C')
+    draw(scores, C_range, [1], 'c', '')
 
 
 def poly_c_coef_test(data):
@@ -96,9 +95,9 @@ def main():
     file_data, file_classes = utils.load_data()
     data = Data(file_data, file_classes, 0.1,  0.7, 30)
     test_kernel_functions(data)
-    poly_c_gamma_test(data)
-    poly_c_coef_test(data)
-    poly_c_degre_test(data)
+    linear_c_test(data)
+    #poly_c_coef_test(data)
+    #poly_c_degre_test(data)
 
 
 main()
